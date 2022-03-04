@@ -1,7 +1,10 @@
 <!--  -->
 <template>
   <div class="app">
-    <router-view />
+    <keep-alive>
+      <router-view />
+    </keep-alive>
+
     <main-tab-bar></main-tab-bar>
   </div>
 </template>
@@ -34,7 +37,10 @@ export default {
   updated() {}, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
   destroyed() {}, //生命周期 - 销毁完成
-  activated() {}, //如果页面有keep-alive缓存功能，这个函数会触发
+  activated() {"来了"}, //如果页面有keep-alive缓存功能，这个函数会触发
+  deactivated(){
+    console.log("离开");
+  }
 };
 </script>
 <style scoped>

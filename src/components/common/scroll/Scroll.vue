@@ -53,6 +53,7 @@
     },
     methods: {
       scrollTo(x, y, time=300) {
+        // this.scroll如果存在则执行下面的话
         this.scroll && this.scroll.scrollTo(x, y, time)
       },
       refresh() {

@@ -4,6 +4,13 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
+    <tab-control
+      class="tab-control"
+      :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      v-show="isTabFixed"
+    />
     <my-scroll
       class="content"
       ref="scroll"
@@ -12,7 +19,7 @@
       @pullingUp="loadMore"
       :probe-type="3"
     >
-      <home-swiper :banner="banner"></home-swiper>
+      <home-swiper :banner="banner" @swiperImageLoad="swiperImageLoad"></home-swiper>
       <recommend-view :recommend="recommend"></recommend-view>
       <feature-view></feature-view>
       <tab-control
@@ -20,7 +27,7 @@
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
         ref="tabControl2"
-        v-show="isTabFixed"
+    
       />
       <goods-list :goods="goods[currentType].list"></goods-list>
     </my-scroll>
@@ -40,7 +47,7 @@ import GoodsList from "components/content/goods/GoodsList.vue";
 import myScroll from "components/common/scroll/Scroll.vue";
 import BackTop from "components/content/backTop/BackTop";
 
-  import {debounce} from "common/utils";
+import { debounce } from "common/utils";
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {
@@ -67,7 +74,6 @@ export default {
       isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
-      saveY: 0,
     };
   },
   //监听属性 类似于data概念
@@ -76,9 +82,10 @@ export default {
   watch: {},
   //方法集合
   methods: {
-    // swiperImageLoad() {
-    //   this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
-    // },
+    swiperImageLoad() {
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      console.log("tab2位置"+this.tabOffsetTop);
+    },
     backClick() {
       console.log(22);
       this.$refs.scroll.scrollTo(0, 0);
@@ -86,8 +93,8 @@ export default {
     contentScroll(position) {
       // 1.判断BackTop是否显示
       this.isShowBackTop = -position.y > 1000;
-
       // 2.决定tabControl是否吸顶(position: fixed)
+    //   -600
       this.isTabFixed = -position.y > this.tabOffsetTop;
     },
     getHomeMultidata() {
@@ -104,7 +111,7 @@ export default {
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page++;
         console.log(this.goods[type]);
-        this.$refs.scroll.finishPullUp()
+        this.$refs.scroll.finishPullUp();
       });
     },
     tabClick(index) {
@@ -119,9 +126,12 @@ export default {
           this.currentType = "sell";
           break;
       }
+      this.$refs.tabControl1.currentIndex=index
+      this.$refs.tabControl2.currentIndex=index
+
     },
     loadMore() {
-        console.log("再来");
+      console.log("再来");
 
       this.getHomeGoods(this.currentType);
     },
@@ -136,10 +146,10 @@ export default {
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
     //     // 1.图片加载完成的事件监听
-      const refresh = debounce(this.$refs.scroll.refresh, 50)
-      this.$bus.$on('itemImageLoad', () => {
-        refresh()
-      })
+    const refresh = debounce(this.$refs.scroll.refresh, 50);
+    this.$bus.$on("itemImageLoad", () => {
+      refresh();
+    });
   },
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
